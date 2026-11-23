@@ -25,6 +25,20 @@ var legacySensitiveLogOtherKeys = []string{
 	"reject_reason",
 }
 
+// hideUpstreamModelInUserLogs controls whether user-visible usage logs drop the
+// upstream model identity (channel model mapping and the returned model name).
+// Administrators keep these fields for troubleshooting. Set HIDE_UPSTREAM_MODEL=false
+// to restore the upstream default behaviour without rebuilding.
+var hideUpstreamModelInUserLogs = common.GetEnvOrDefaultBool("HIDE_UPSTREAM_MODEL", true)
+
+// hideUpstreamModelKeys are public usage-log fields that reveal which upstream
+// model actually served the request; they are stripped from user projections.
+var hideUpstreamModelKeys = []string{
+	"upstream_model_name",
+	"is_model_mapped",
+	"response_model",
+}
+
 type logOtherVisibility int
 
 const (
@@ -254,6 +268,14 @@ func formatLogOtherJSON(value string, visibility logOtherVisibility) string {
 			if _, exists := values[key]; exists {
 				delete(values, key)
 				changed = true
+			}
+		}
+		if hideUpstreamModelInUserLogs {
+			for _, key := range hideUpstreamModelKeys {
+				if _, exists := values[key]; exists {
+					delete(values, key)
+					changed = true
+				}
 			}
 		}
 	} else {
