@@ -26,6 +26,10 @@ jobs:
           # 需要 tag 才能算出上游基线版本
           fetch-depth: 0
 
+      - name: Fetch upstream tags
+        # fork 不继承上游 tag，checkout 也只有 origin；这里补一次，describe 才有东西可用
+        run: git fetch --tags https://github.com/QuantumNous/new-api.git 'refs/tags/*:refs/tags/*'
+
       - name: Compute image name and tag
         run: |
           set -euo pipefail
