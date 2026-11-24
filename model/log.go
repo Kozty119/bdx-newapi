@@ -115,6 +115,11 @@ func assignDisplayLogIds(logs []*Log, startIdx int) {
 func formatUserLogs(logs []*Log, startIdx int) {
 	for i := range logs {
 		logs[i].ChannelName = ""
+		// Hide the internal routing identifiers from the log owner: the channel
+		// id exposes the supply layout and the upstream request id carries the
+		// upstream platform fingerprint. Administrators keep both.
+		logs[i].ChannelId = 0
+		logs[i].UpstreamRequestId = ""
 		logs[i].Other = formatLogOtherJSON(logs[i].Other, logOtherVisibilityUser)
 	}
 	assignDisplayLogIds(logs, startIdx)
